@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Compose
+GenericName=Pretty audio workstation
+Comment=Create music with ease
+Categories=Audio;
+Exec=com.github.abbysoft-team.compose
+Icon=com.github.abbysoft-team.compose
+Terminal=false
+Type=Application
+Keywords=DAW;audio;sound;music;fun;recording
