@@ -16,7 +16,7 @@ public class PulseAudioInterfaceImpl : GLib.Object, AudioInterface {
     private ulong last_buffer_pos = 0;
     private ulong playback_buffer_pos = 0;
 
-    public int16 buffer[1 * 1024 * 1024];
+    public int16[] buffer = new int16[1 * 1024 * 1024];
     private bool recording;
     private bool playing;
     
@@ -53,7 +53,13 @@ public class PulseAudioInterfaceImpl : GLib.Object, AudioInterface {
             print ("pa_context_connect for record failed: %s\n", PulseAudio.strerror (record_context.errno ()));
         }
         
+        record_context.get_source_info_list(source_list_callback);
+        
         return 0;
+    }
+    
+    private void source_list_callback (Context context, SourceInfo? sources, int eol) {
+        print ("received source list\n");
     }
     
     private void set_state_playback (Context context) {
@@ -73,7 +79,6 @@ public class PulseAudioInterfaceImpl : GLib.Object, AudioInterface {
         if (state == Context.State.READY) { print("state READY\n"); }
         if (state == Context.State.FAILED) { print("state FAILED,\n"); }
         if (state == Context.State.TERMINATED) { print("state TERMINATED\n"); }
-                
         if (state == Context.State.READY) {
             this.attr = PulseAudio.Stream.BufferAttr ();
             size_t fragment_size = 0;
@@ -146,22 +151,30 @@ public class PulseAudioInterfaceImpl : GLib.Object, AudioInterface {
         //stdout.printf ("recording %u bytes\n", (uint) nbytes);
                 
         if (last_buffer_pos + nbytes >= buffer.length / sizeof (int16)) {
-            print ("done with recording");
+            print ("done with recording\n");
             recording = false;
             playing = true;
             playback_buffer_pos = 0;
-            new SndFileExporter ().export_wav ((void *) &buffer, last_buffer_pos * sizeof (int16), "test.wav");
+            new SndFileExporter ().export_wav ((void *) buffer, last_buffer_pos * sizeof (int16), "test.wav");
             return;
         }
         
-        void* current_buffer_pos = (void *) (&buffer[last_buffer_pos]);
+        void* current_buffer_pos = (void *) (buffer[last_buffer_pos]);
         
         if (stream.peek (out current_buffer_pos, out nbytes) < 0) {
             print ("failed to peek %s", PulseAudio.strerror(record_context.errno ()));
             return;
         }
+        if (stream.drop () < 0) {
+            print ("failed to drop %s", PulseAudio.strerror(record_context.errno ()));
+            return;
+        }
         
         print ("read %u bytes\n", (uint) nbytes);
+        for (int i = 0; i < nbytes; i++) {
+            print ("%d", buffer[last_buffer_pos + i]);
+        }
+        print ("\n");
         print ("current buff pos: %u kb\n", (uint) (last_buffer_pos / 1024 * 2));
         
         last_buffer_pos += nbytes / sizeof (int16);
@@ -183,14 +196,14 @@ public class PulseAudioInterfaceImpl : GLib.Object, AudioInterface {
                 for (uint i = 0; i < len; i += spec.channels) {
                     int16 val = (int16) (32767.0 * m_amp * GLib.Math.sin (m_freq * m_time * twopi_over_sr));
                     for (uint j = 0; j < spec.channels; j++) {
-                        data[i + j] = val;
+                        buffer[i + j] = val;
                         samps++;
                     }
                     this.m_time++;
                 }
                 
-            stream.write ((void *) data, sizeof (int16) * data.length);
-
+            stream.write ((void *) buffer, sizeof (int16) * data.length);
+            
             return;
         }
         

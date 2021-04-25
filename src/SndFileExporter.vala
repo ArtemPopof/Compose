@@ -12,11 +12,11 @@ public class SndFileExporter : GLib.Object, Exporter {
         if (file == null) {
             print (@"Could not write audio $file_name: $(Sndfile.File.strerror(file))\n");
             return 0;
-            }
-            
-        count_t result = file.writef_short ((short []) buffer, (Sndfile.count_t) (size / sizeof (int16) / info.channels));
-        if (result != 0) {
-            print ("Failed to save wav file %s, error: %s\n", file_name, Sndfile.File.strerror(file));
+        }
+                    
+        count_t result = file.writef_float ((float[]) buffer, (Sndfile.count_t) (size / sizeof (float)));
+        if (result < 0) {
+            print ("Failed to save wav file %s, error: %s, result: %u\n", file_name, Sndfile.File.strerror(file), (uint) result);
             return 1;
         }
         
