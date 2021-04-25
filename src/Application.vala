@@ -79,13 +79,23 @@ public class Application : Gtk.Application {
     private Gtk.Box create_track_controls () {
         var container = new Gtk.Box (HORIZONTAL, 5);
         
-        container.add (new Gtk.Button.with_label (_("Record")));
+        container.add (create_record_button ());
         container.add (new Gtk.Button.with_label (_("Play")));
         container.add (new Gtk.Button.with_label (_("Stop")));
         
         container.vexpand = true;
         
         return container;
+    }
+    
+    private Gtk.Button create_record_button () {
+        Gtk.Button button = new Gtk.Button.with_label (_("Record"));
+        button.clicked.connect (() => {
+            backend.record ();
+            print ("recording... \n");
+        });
+        
+        return button;
     }
     
     private Gtk.Box create_working_area () {

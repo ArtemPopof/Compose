@@ -32,6 +32,7 @@ dependencies = [
     dependency('alsa'),
     dependency('libpulse'),
     dependency('libpulse-mainloop-glib'),
+    dependency('sndfile'),
     math_dep
 
 ]
