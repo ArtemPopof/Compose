@@ -1,0 +1,61 @@
+using Jack;
+
+public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
+
+    private Port output_port;
+    private Port input_port;
+    private Client client;
+    
+    private void shutdown (void *arg) {
+        client.close ();
+    }
+    
+    public int init () {
+        print ("Initialising jack backend...\n");
+        
+        Status status;
+        client = Client.open ("Compose", Options.NullOption, out status);
+        if (client == null) {
+		    print ("jack_client_open() failed, status = 0x%2.0x\n", status);
+		    
+		    if ((status & Status.ServerFailed) != 0) {
+			    print ("Unable to connect to JACK server\n");
+		    }
+		    
+		    return 1;
+	    }
+	    
+	    if ((status & Status.ServerStarted) != 0) {
+	        print ("Started JACK server\n");
+        }
+        
+        print ("Connected to JACK server\n");
+        
+        client.set_process_callback (process);
+        client.on_shutdown (shutdown);
+        
+        output_port = client.port_register ("output", JACK_DEFAULT_AUDIO_TYPE, )
+        
+        return 0;
+    }
+    
+    public void play (AudioData clip, bool looped) {
+        
+    }
+    
+    public void stop (AudioData clip) {
+        
+    }
+    
+    public void record () {
+        
+    }
+    
+    public AudioData stop_record () {
+        return null;
+    }
+    
+    public void close () {
+        
+    }
+}
