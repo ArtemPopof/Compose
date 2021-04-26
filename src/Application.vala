@@ -134,7 +134,7 @@ public class Application : Gtk.Application {
             return 1;
         }
     
-        var backend = new PulseAudioInterfaceImpl ();
+        var backend = new JackAudioInterfaceImpl ();
         if (backend.init () != 0) {
             stderr.printf ("failed to initialize backend\n");
             return 1;

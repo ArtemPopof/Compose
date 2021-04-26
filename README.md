@@ -12,6 +12,8 @@ You'll need the following dependencies to build:
 * libgranite-dev
 * libgtk-3-dev
 * libasound2-dev
+* libjack-dev
+* libsndfile-1
 * meson
 * valac
 
