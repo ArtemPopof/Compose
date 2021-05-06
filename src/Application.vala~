@@ -81,8 +81,8 @@ public class Application : Gtk.Application {
         
         container.add (create_record_button ());
         container.add (new Gtk.Button.with_label (_("Play")));
-        container.add (new Gtk.Button.with_label (_("Stop")));
-        
+        container.add (create_stop_button ());
+
         container.vexpand = true;
         
         return container;
@@ -93,6 +93,16 @@ public class Application : Gtk.Application {
         button.clicked.connect (() => {
             backend.record ();
             print ("recording... \n");
+        });
+        
+        return button;
+    }
+    
+    private Gtk.Button create_stop_button () {
+        Gtk.Button button = new Gtk.Button.with_label (_("Stop"));
+        button.clicked.connect (() => {
+            var data = backend.stop_record ();
+            print ("recording complete, recorded %u bytes\n", (uint) (data.size * sizeof (float)));
         });
         
         return button;

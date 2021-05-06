@@ -6,5 +6,6 @@ sources = files(
     'backend/pulse/PulseAudioInterfaceImpl.vala',
     'backend/jack/JackAudioInterfaceImpl.vala',
     'Exporter.vala',
-    'SndFileExporter.vala'
+    'SndFileExporter.vala',
+    'widget/WorkingArea.vala'
 )
