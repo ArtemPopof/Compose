@@ -2,6 +2,10 @@ using Sndfile;
 
 public class SndFileExporter : GLib.Object, Exporter {
     
+    public int export_audio_wav (AudioData data, string file_name) {
+        return export_wav (data.buffer, data.size, file_name);
+    }
+    
     public int export_wav (float *buffer, size_t size, string file_name) {
         Info info = {};
         info.samplerate = 24000;
@@ -19,7 +23,7 @@ public class SndFileExporter : GLib.Object, Exporter {
         //     print (": %f", floatBuffer[i]);
         // }
         //             
-        count_t result = file.write_float ((float[])buffer, (Sndfile.count_t) (size / sizeof (float)));
+        count_t result = file.write_float ((float[])buffer, (Sndfile.count_t) (size));
         if (result < 0) {
             print ("Failed to save wav file %s, error: %s, result: %u\n", file_name, Sndfile.File.strerror(file), (uint) result);
             return 1;

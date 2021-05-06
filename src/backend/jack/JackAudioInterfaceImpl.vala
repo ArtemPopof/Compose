@@ -12,8 +12,12 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
     private double m_freq = 200;
     private ulong m_time = 0;
     
-    public float[] buffer = new float[1024 * 1024];
+    public float[] buffer = new float[20 * 1024 * 1024];
     private ulong last_buffer_pos;
+    
+    private bool recording;
+    
+    private AudioData last_audio_data;
     
     private void shutdown () {
     }
@@ -40,14 +44,23 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
         //     this.m_time++;
         // }
         
+        if (!recording) return 0;
+        
+        // if (last_buffer_pos >= buffer.length - 100) {
+        //     print ("Buffer full, recording complete\n");
+        //     new SndFileExporter ().export_wav ((float *) buffer, last_buffer_pos * sizeof (float), "test.wav");
+        //     last_buffer_pos = 0;
+        //     return 0;
+        // }
+        
+        if (last_buffer_pos >= buffer.length - 100) {
+            print ("Buffer full\n");
+            stop_record ();
+            return 0;
+        }
+        
         // monitor input
         for (int i = 0; i < nframes; i++) {
-            if (last_buffer_pos >= buffer.length - 100) {
-                print ("Buffer full, recording complete\n");
-                new SndFileExporter ().export_wav ((float *) buffer, last_buffer_pos * sizeof (float), "test.wav");
-                last_buffer_pos = 0;
-                return 0;
-            }
             buffer[last_buffer_pos + i] = input[i];
         }
         
@@ -173,11 +186,24 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
     }
     
     public void record () {
-        
+        print ("Start recording...\n");
+        recording = true;
+        last_buffer_pos = 0;
     }
     
     public AudioData stop_record () {
-        return null;
+        recording = false;
+        
+        print ("Stop recording and save clip\n");
+        
+        float *audio_data_buffer = try_malloc (sizeof (float) * last_buffer_pos);
+        Memory.copy (audio_data_buffer, buffer, sizeof (float) * last_buffer_pos);
+        
+        last_audio_data = new AudioData (buffer, (size_t) last_buffer_pos);
+        
+        new SndFileExporter ().export_audio_wav (last_audio_data, "test_clip.wav");
+        
+        return last_audio_data;
     }
     
     public void close () {

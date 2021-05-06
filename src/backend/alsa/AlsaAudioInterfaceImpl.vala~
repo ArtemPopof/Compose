@@ -212,6 +212,6 @@ public class AlsaAudioInterfaceImpl : GLib.Object, AudioInterface {
     }
     
     public AudioData stop_record () {
-        return null;
+        return new AudioData ();
     } 
 }
