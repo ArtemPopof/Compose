@@ -74,6 +74,7 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
         
         if (transport != null) {
             transport.move_transport (nframes);
+            transport.samples_preview (nframes, input[0]);
         }
 
         return 0;

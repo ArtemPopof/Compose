@@ -9,13 +9,13 @@ public class TransportPointer : DrawableObject, GLib.Object {
     private const double START_OFFSET = 5;
 
     private double pixels_per_second = 20;
-    private double current_position;
+    public double current_position {get; set;}
     
     public TransportPointer () {
         current_position = 0;
     }
 
-    public bool draw (Cairo.Context cr, double canvas_width, double canvas_height) {
+    public bool draw (Cairo.Context cr, double canvas_width, double canvas_height, double x, double y) {
         cr.save ();
         
         cr.set_source_rgb (COLOR_R, COLOR_G, COLOR_B);
