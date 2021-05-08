@@ -7,5 +7,10 @@ sources = files(
     'backend/jack/JackAudioInterfaceImpl.vala',
     'Exporter.vala',
     'SndFileExporter.vala',
-    'widget/WorkingArea.vala'
+    'widget/WorkingArea.vala',
+    'widget/WorkingAreaGL.vala',
+    'widget/DrawableObject.vala',
+    'widget/TransportPointer.vala',
+    'context/ContextProperties.vala',
+    'Controller.vala'
 )

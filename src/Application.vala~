@@ -111,9 +111,12 @@ public class Application : Gtk.Application {
     private Gtk.Box create_working_area () {
         var container = new Gtk.Box (VERTICAL, 5);
         
-        container.add (create_track_body ());
-        container.add (create_track_body ());
-        container.add (create_track_body ());
+        var area = new WorkingArea () {
+            hexpand = true,
+            vexpand = true
+        };
+        
+        container.add (area);
         
         container.vexpand = true;
         container.hexpand = true;
