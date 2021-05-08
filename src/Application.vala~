@@ -20,19 +20,19 @@
 */
 public class Application : Gtk.Application {
 
-    private AudioInterface backend;
+    private Controller controller;
 
-    Application (AudioInterface backend) {
+    Application (Controller controller) {
         Object (
             application_id: "com.github.abbysoft-team.compose",
             flags: ApplicationFlags.FLAGS_NONE
         );
         
-        this.backend = backend;
+        this.controller = controller;
     }
     
     ~Application () {
-        backend.close();
+
     }
 
   
@@ -91,8 +91,7 @@ public class Application : Gtk.Application {
     private Gtk.Button create_record_button () {
         Gtk.Button button = new Gtk.Button.with_label (_("Record"));
         button.clicked.connect (() => {
-            backend.record ();
-            print ("recording... \n");
+            controller.record ();
         });
         
         return button;
@@ -101,8 +100,7 @@ public class Application : Gtk.Application {
     private Gtk.Button create_stop_button () {
         Gtk.Button button = new Gtk.Button.with_label (_("Stop"));
         button.clicked.connect (() => {
-            var data = backend.stop_record ();
-            print ("recording complete, recorded %u bytes\n", (uint) (data.size * sizeof (float)));
+            controller.stop ();
         });
         
         return button;
@@ -153,7 +151,10 @@ public class Application : Gtk.Application {
             return 1;
         }
         
-        var app = new Application (backend);
+        var controller = new Controller (backend);
+        controller.init ();
+        
+        var app = new Application (controller);
         
         return app.run (args);
     }

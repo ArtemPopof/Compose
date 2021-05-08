@@ -6,16 +6,12 @@ public class WorkingArea : DrawingArea {
     private const double BACKGROUND_COLOR_G = 0.3;
     private const double BACKGROUND_COLOR_B = 0.3;
     
-    private TransportPointer pointer;
-    
-    public static WorkingArea instance;
+    public TransportPointer pointer {get; set;}
     
     public WorkingArea () {
         add_events (Gdk.EventMask.POINTER_MOTION_MASK);
         
         pointer = new TransportPointer ();
-        
-        instance = this;
     }
 
     public override bool draw (Cairo.Context cr) {

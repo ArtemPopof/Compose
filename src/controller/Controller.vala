@@ -1,4 +1,4 @@
-public class Controller : GLib.Object {
+public class Controller : GLib.Object, Transport {
 
     public enum State {
         IDLE,
@@ -11,16 +11,19 @@ public class Controller : GLib.Object {
     
     private const int UPS = 30;
     
-    private TransportPointer pointer;
     private WorkingArea working_area;
     private double play_time;
     private ulong update_period;
+    
+    private bool initialized;
 
     public State state {get; set;}
 
-    public Controller (AudioInterface backend) {
+    public Controller (AudioInterface backend, WorkingArea working_area) {
         this.backend = backend;
+        this.working_area = working_area;
         state = State.IDLE;
+        initialized = false;
         
         update_period = 1000000 / UPS;
     }
@@ -30,8 +33,9 @@ public class Controller : GLib.Object {
     }
     
     public void init () {
-        pointer = TransportPointer.instance;
-        working_area = WorkingArea.instance;
+        initialized = true;
+        
+        backend.set_transport (this);
     }
     
     public void play () {
@@ -40,7 +44,7 @@ public class Controller : GLib.Object {
         
         play_time = 0;
         
-        start_ui_update_thread ();
+        //start_ui_update_thread ();
     }
     
     private void start_ui_update_thread () {
@@ -48,12 +52,12 @@ public class Controller : GLib.Object {
     }
     
     private void ui_update_thread () {
-        while (state == State.PLAYING || state == State.RECORD) {
-            Thread.usleep (update_period);
-            
-            pointer.move (update_period); 
-            working_area.queue_draw ();
-        }
+        // while (state == State.PLAYING || state == State.RECORD) {
+        //     Thread.usleep (update_period);
+        //     
+        //     working_area.pointer.move (update_period); 
+        //     working_area.queue_draw ();
+        // }
     }
     
     public void stop () {
@@ -72,20 +76,32 @@ public class Controller : GLib.Object {
         backend.record ();
         print ("recording... \n");
         
-        start_ui_update_thread ();
+        working_area.pointer.reset ();
+        working_area.queue_draw ();
+                
+        //start_ui_update_thread ();
     }
     
     public void pause () {
         validate ();
         state = State.PAUSED;
-        
     }
     
     private void validate () {
-        if (pointer == null) {
+        if (!initialized) {
             printerr ("Init controller before using it\n");
             Process.exit (1);
         }
+    }
+    
+    public void move_transport (ulong frames) {
+        var sample_rate = backend.get_sample_rate ();
+        
+        double seconds_passed = frames / (double) sample_rate;
+        
+        working_area.pointer.move (seconds_passed);
+        
+        working_area.queue_draw ();
     }
 
 }

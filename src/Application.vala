@@ -21,14 +21,13 @@
 public class Application : Gtk.Application {
 
     private Controller controller;
+    private WorkingArea working_area;
 
-    Application (Controller controller) {
+    Application () {
         Object (
             application_id: "com.github.abbysoft-team.compose",
             flags: ApplicationFlags.FLAGS_NONE
         );
-        
-        this.controller = controller;
     }
     
     ~Application () {
@@ -37,6 +36,19 @@ public class Application : Gtk.Application {
 
   
     protected override void activate () {
+        // initialize backend
+        var backend = new JackAudioInterfaceImpl ();
+        if (backend.init () != 0) {
+            stderr.printf ("failed to initialize backend\n");
+            Process.exit (1);
+        }
+        
+        working_area = new WorkingArea ();
+        
+        controller = new Controller (backend, working_area);
+        controller.init ();
+        
+        
         var main_window = create_main_window ();
        
         var content_container = new Gtk.Grid () {
@@ -109,12 +121,10 @@ public class Application : Gtk.Application {
     private Gtk.Box create_working_area () {
         var container = new Gtk.Box (VERTICAL, 5);
         
-        var area = new WorkingArea () {
-            hexpand = true,
-            vexpand = true
-        };
+        working_area.hexpand = true;
+        working_area.vexpand = true;
         
-        container.add (area);
+        container.add (working_area);
         
         container.vexpand = true;
         container.hexpand = true;
@@ -144,17 +154,8 @@ public class Application : Gtk.Application {
             stderr.printf ("Cannot run without thread support.\n");
             return 1;
         }
-    
-        var backend = new JackAudioInterfaceImpl ();
-        if (backend.init () != 0) {
-            stderr.printf ("failed to initialize backend\n");
-            return 1;
-        }
         
-        var controller = new Controller (backend);
-        //controller.init ();
-        
-        var app = new Application (controller);
+        var app = new Application ();
         
         return app.run (args);
     }

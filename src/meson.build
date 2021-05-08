@@ -12,5 +12,6 @@ sources = files(
     'widget/DrawableObject.vala',
     'widget/TransportPointer.vala',
     'context/ContextProperties.vala',
-    'Controller.vala'
+    'controller/Controller.vala',
+    'controller/Transport.vala'
 )

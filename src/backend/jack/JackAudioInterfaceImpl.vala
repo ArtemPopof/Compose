@@ -17,7 +17,11 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
     
     private bool recording;
     
+    private uint sample_rate;
+    
     private AudioData last_audio_data;
+    
+    private Transport transport;
     
     private void shutdown () {
     }
@@ -68,6 +72,10 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
         
         print ("Buffer position: %u\n", (uint) last_buffer_pos);
         
+        if (transport != null) {
+            transport.move_transport (nframes);
+        }
+
         return 0;
     }
     
@@ -165,7 +173,7 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
         
         print ("Input port connected\n");
         
-        NFrames sample_rate = client.get_sample_rate ();
+        sample_rate = (uint) client.get_sample_rate ();
         twopi_over_sr = (2.0 * Math.PI) / (double) sample_rate;
         
         print ("Jack initializing complete, sample rate: %u\n", sample_rate);
@@ -208,5 +216,13 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
     
     public void close () {
         
+    }
+    
+    public uint get_sample_rate () {
+        return sample_rate;
+    }
+    
+    public void set_transport (Transport transport) {
+        this.transport = transport;
     }
 }

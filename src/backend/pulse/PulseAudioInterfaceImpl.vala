@@ -257,4 +257,8 @@ public class PulseAudioInterfaceImpl : GLib.Object, AudioInterface {
     public void close () {
         
     }
+    
+    public uint get_sample_rate () { return 0; }
+    
+    public void set_transport (Transport transport) {}
 }

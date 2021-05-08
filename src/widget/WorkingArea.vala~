@@ -8,10 +8,14 @@ public class WorkingArea : DrawingArea {
     
     private TransportPointer pointer;
     
+    public static WorkingArea instance;
+    
     public WorkingArea () {
         add_events (Gdk.EventMask.POINTER_MOTION_MASK);
         
         pointer = new TransportPointer ();
+        
+        instance = this;
     }
 
     public override bool draw (Cairo.Context cr) {

@@ -11,12 +11,8 @@ public class TransportPointer : DrawableObject, GLib.Object {
     private double pixels_per_second = 20;
     private double current_position;
     
-    public static TransportPointer instance;
-    
     public TransportPointer () {
         current_position = 0;
-        
-        instance = this;
     }
 
     public bool draw (Cairo.Context cr, double canvas_width, double canvas_height) {
@@ -35,7 +31,11 @@ public class TransportPointer : DrawableObject, GLib.Object {
         return false;
     }
     
-    public void move (ulong usec_delta) {
-        current_position = usec_delta / 1000000.0;
+    public void move (double sec) {
+        current_position = current_position + sec;
+    }
+    
+    public void reset () {
+        current_position = 0;
     }
 }

@@ -214,4 +214,8 @@ public class AlsaAudioInterfaceImpl : GLib.Object, AudioInterface {
     public AudioData stop_record () {
         return null;
     } 
+    
+    public uint get_sample_rate () { return 0; }
+    
+    public void set_transport (Transport transport) {}
 }
