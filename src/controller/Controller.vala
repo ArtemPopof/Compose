@@ -104,11 +104,11 @@ public class Controller : GLib.Object, Transport {
         working_area.queue_draw ();
     }
     
-    public void samples_preview (ulong frames, double average_level) {
+    public void samples_preview (int samples_per_preview, float[] sample_previews) {
         // now we assume that this func is called with the same frame count
         var current_transport_pos = working_area.pointer.current_position;
         
-        working_area.get_track (0).sample_preview (current_transport_pos, average_level);
+        working_area.get_track (0).sample_preview (Utility.seconds_to_track_pixels (current_transport_pos), sample_previews);
     }
 
 }

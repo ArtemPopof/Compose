@@ -21,6 +21,7 @@
 public class Application : Gtk.Application {
 
     private Controller controller;
+    private AudioContext context;
     private WorkingArea working_area;
 
     Application () {
@@ -37,7 +38,8 @@ public class Application : Gtk.Application {
   
     protected override void activate () {
         // initialize backend
-        var backend = new JackAudioInterfaceImpl ();
+        var context = new AudioContext ();
+        var backend = context.get_audio_interface ();
         if (backend.init () != 0) {
             stderr.printf ("failed to initialize backend\n");
             Process.exit (1);

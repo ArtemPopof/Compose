@@ -2,14 +2,20 @@ using Gee;
 
 public class Track : DrawableObject, GLib.Object {
 
+    private const int MAX_PREVIEW_SAMPLES = 100000;
+
     private const Color BACKGROUND_COLOR = {0.8, 0.4, 0.4, 0.7};
     private const Color STROKE_COLOR = {0.6, 0.2, 0.2, 1};
     private const Color PREVIEW_COLOR = {0.7, 0.57, 0, 0.9};
     
-    private HashMap<double?, double?> samples_preview_data;
+    private double amp = 5000;
+    private double preview_offset = 50;
+    
+    private float[] samples_preview_data;
+    private int preview_samples_count = 0;
         
     public Track () {
-        samples_preview_data = new HashMap<double?, double?> ();
+        samples_preview_data = new float[MAX_PREVIEW_SAMPLES];
     }
     
     
@@ -51,21 +57,31 @@ public class Track : DrawableObject, GLib.Object {
     private void draw_preview (Cairo.Context cr, double canvas_width, double canvas_height, double x, double y) {
         Utility.set_color (cr, PREVIEW_COLOR);
         
-        cr.new_sub_path ();
-        cr.move_to (0, 0);
-        for (int i = 0; i < samples_preview_data.size; i++) {
-            var sample_x = x + i * 5;
-            var sample_y = y + canvas_height / 2;
+        var pixels_per_preview_sample = AudioContext.PIXELS_PER_PREVIEW_SAMPLE;
+        
+         //print ("map size: %f\n", samples_preview_data[0]);
+        // print ("map[last]: %f\n", samples_preview_data[preview_samples_count - 1]);
+        
+        var center = y + canvas_height / 2;
+                    
+        for (int i = 0; i < preview_samples_count; i++) {
+            var sample_x = x + i * pixels_per_preview_sample;
+            var sample_y = center - samples_preview_data[i] * amp;
+            //print ("sample_x: %f\n", sample_x);
+            //print ("sample_y: %f\n", sample_y);
             
+            //print ("value: %f\n", entry.value);
+            cr.move_to (sample_x, center);
             cr.line_to (sample_x, sample_y);
         }
-        cr.close_path ();
-        
+                
         cr.set_line_width (1.0);
         cr.stroke ();
     }
     
-    public void sample_preview (double track_position, double sample_level) {
-        samples_preview_data.set (track_position, sample_level);
+    public void sample_preview (double track_position_pixels, float[] sample_previews) {
+        void * position = ((float *)samples_preview_data) + preview_samples_count;
+        preview_samples_count += sample_previews.length;
+        Memory.copy (position, sample_previews, sizeof (float) * sample_previews.length);
     }
 }

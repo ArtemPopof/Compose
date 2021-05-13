@@ -13,6 +13,7 @@ sources = files(
     'widget/DrawableObject.vala',
     'widget/TransportPointer.vala',
     'context/ContextProperties.vala',
+    'context/AudioContext.vala',
     'controller/Controller.vala',
     'controller/Transport.vala',
     'widget/Track.vala',

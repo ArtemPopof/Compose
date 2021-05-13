@@ -8,7 +8,6 @@ public class TransportPointer : DrawableObject, GLib.Object {
     
     private const double START_OFFSET = 5;
 
-    private double pixels_per_second = 20;
     public double current_position {get; set;}
     
     public TransportPointer () {
@@ -21,8 +20,8 @@ public class TransportPointer : DrawableObject, GLib.Object {
         cr.set_source_rgb (COLOR_R, COLOR_G, COLOR_B);
         cr.set_line_width (1.3);
         
-        cr.move_to (START_OFFSET + current_position * pixels_per_second, 0);
-        cr.line_to (START_OFFSET + current_position * pixels_per_second, canvas_height);
+        cr.move_to (START_OFFSET + Utility.seconds_to_track_pixels (current_position), 0);
+        cr.line_to (START_OFFSET + Utility.seconds_to_track_pixels (current_position), canvas_height);
         
         cr.stroke ();
         
