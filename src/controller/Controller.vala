@@ -1,12 +1,5 @@
 public class Controller : GLib.Object, Transport {
 
-    public enum State {
-        IDLE,
-        PLAYING,
-        RECORD,
-        PAUSED
-    }
-    
     private AudioInterface backend;
     
     private const int UPS = 30;
@@ -17,12 +10,12 @@ public class Controller : GLib.Object, Transport {
     
     private bool initialized;
 
-    public State state {get; set;}
+    public Transport.State state {get; set;}
 
     public Controller (AudioInterface backend, WorkingArea working_area) {
         this.backend = backend;
         this.working_area = working_area;
-        state = State.IDLE;
+        state = Transport.State.IDLE;
         initialized = false;
         
         update_period = 1000000 / UPS;
@@ -40,7 +33,7 @@ public class Controller : GLib.Object, Transport {
     
     public void play () {
         validate ();
-        state = State.PLAYING;
+        state = Transport.State.PLAYING;
         
         play_time = 0;
         
@@ -61,7 +54,7 @@ public class Controller : GLib.Object, Transport {
     }
     
     public void stop () {
-        if (state == State.RECORD) {
+        if (state == Transport.State.RECORD) {
             var data = backend.stop_record ();
             print ("recording complete, recorded %u bytes\n", (uint) (data.size * sizeof (float)));
         }
@@ -71,7 +64,7 @@ public class Controller : GLib.Object, Transport {
     
     public void record () {
         validate ();
-        state = State.RECORD;
+        state = Transport.State.RECORD;
         
         backend.record ();
         print ("recording... \n");
@@ -84,7 +77,7 @@ public class Controller : GLib.Object, Transport {
     
     public void pause () {
         validate ();
-        state = State.PAUSED;
+        state = Transport.State.PAUSED;
     }
     
     private void validate () {

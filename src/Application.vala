@@ -65,17 +65,37 @@ public class Application : Gtk.Application {
         main_window.show_all ();
     }
     
-    private Gtk.Window create_main_window () {
+    private Gtk.ApplicationWindow create_main_window () {
         var main_window = new Gtk.ApplicationWindow (this);
         main_window.title = _("Compose");
 
         main_window.default_width = 1111;
         main_window.default_height = 777;
+        
+        main_window.set_titlebar (create_title_bar ());
 
         
-        //Granite.Widgets.Utils.set_color_primary (main_window, {222, 22, 0, 256});
+        //Granite.Widgets.Utils.set_color_primary (main_window, {0.8, 0.8, 0.8, 1});
         
         return main_window;
+    }
+    
+    private Gtk.HeaderBar create_title_bar () {
+        var header_bar = new Gtk.HeaderBar ();
+        
+        header_bar.set_show_close_button (true);
+        header_bar.title = _("Untitled");
+        header_bar.has_subtitle = false;
+        
+        var transport_controls = new TransportWidget (controller);
+        
+        header_bar.pack_start (new Gtk.Button.with_label (_("New")));
+        header_bar.pack_start (new Gtk.Button.with_label (_("Open")));
+        header_bar.pack_start (new Gtk.Button.with_label (_("Save")));
+        header_bar.pack_start (new Gtk.Label (_("                              ")));
+        header_bar.pack_start (transport_controls);
+        
+        return header_bar;
     }
     
     private Gtk.Grid create_controls_panel () {

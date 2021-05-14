@@ -4,7 +4,7 @@ public class TransportPointer : DrawableObject, GLib.Object {
 
     private const double COLOR_R = 0.8f;
     private const double COLOR_G = 0.8f;
-    private const double COLOR_B = 0.75f;
+    private const double COLOR_B = 0.4f;
     
     private const double START_OFFSET = 5;
 

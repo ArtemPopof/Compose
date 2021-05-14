@@ -4,9 +4,9 @@ public class Track : DrawableObject, GLib.Object {
 
     private const int MAX_PREVIEW_SAMPLES = 100000;
 
-    private const Color BACKGROUND_COLOR = {0.8, 0.4, 0.4, 0.7};
-    private const Color STROKE_COLOR = {0.6, 0.2, 0.2, 1};
-    private const Color PREVIEW_COLOR = {0.7, 0.57, 0, 0.9};
+    private const Color BACKGROUND_COLOR = {0.8, 0.6, 0.6, 0.9};
+    private const Color STROKE_COLOR = {0.8, 0.7, 0.7, 0.4};
+    private const Color PREVIEW_COLOR = {0, 0, 0, 0.4};
     
     private double amp = 5000;
     private double preview_offset = 50;
@@ -24,6 +24,7 @@ public class Track : DrawableObject, GLib.Object {
         
         // cr.set_source_rgba (BACKGROUND_R, BACKGROUND_G, BACKGROUND_B, BACKGROUND_A);
         // cr.set_line_width (1);
+        
         // cr.rectangle(x, y, canvas_width, canvas_height);
         // cr.fill ();
         // cr.set_source_rgba (BACKGROUND_R - 0.1, BACKGROUND_G - 0.05, BACKGROUND_B - 0.05, 0);

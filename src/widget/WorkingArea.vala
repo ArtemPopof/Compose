@@ -2,9 +2,11 @@ using Gtk;
 
 public class WorkingArea : DrawingArea {
 
-    private const double BACKGROUND_COLOR_R = 0.2;
-    private const double BACKGROUND_COLOR_G = 0.2;
-    private const double BACKGROUND_COLOR_B = 0.2;
+    private const double BACKGROUND_COLOR_R = 0.3;
+    private const double BACKGROUND_COLOR_G = 0.3;
+    private const double BACKGROUND_COLOR_B = 0.3;
+    
+    private Color grid_color = {0.0, 0.0, 0.0, 0.7};
     
     public TransportPointer pointer {get; set;}
     
@@ -31,6 +33,8 @@ public class WorkingArea : DrawingArea {
         cr.rectangle (0, 0, width, height);
         cr.fill ();
         
+        draw_grid (cr, width, height);
+        
         cr.set_line_width (2);
         cr.set_source_rgb (0.4, 0.4, 0.4);
         for (int track_y = 0; track_y + track_size < height + 1; track_y += track_size) {
@@ -46,6 +50,23 @@ public class WorkingArea : DrawingArea {
         pointer.draw (cr, width, height, 0, 0);
         
         return false;
+    }
+    
+    private void draw_grid (Cairo.Context cr, double width, double height) {
+        cr.save ();
+        
+        Utility.set_color (cr, grid_color);
+        cr.set_line_width (0.5);
+        var grid_step = 2 * AudioContext.PIXELS_PER_SECOND;
+        
+        for (double x = 0; x < width; x += grid_step) {
+            cr.move_to (x, 0);
+            cr.line_to (x, height);
+            cr.stroke ();
+        }
+        
+        cr.restore ();
+
     }
     
     public Track get_track (int index) {
