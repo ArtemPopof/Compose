@@ -13,9 +13,14 @@ public class Track : DrawableObject, GLib.Object {
     
     private float[] samples_preview_data;
     private int preview_samples_count = 0;
+    
+    private AudioData audio_data {get; set;}
+    public TrackControls controls_widget {get; set;}
         
-    public Track () {
+    public Track (Controller controller) {
         samples_preview_data = new float[MAX_PREVIEW_SAMPLES];
+        
+        controls_widget = new TrackControls (controller);
     }
     
     

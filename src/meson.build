@@ -11,6 +11,7 @@ sources = files(
     'widget/WorkingArea.vala',
     'widget/WorkingAreaGL.vala',
     'widget/DrawableObject.vala',
+    'widget/TrackControls.vala',
     'widget/TransportPointer.vala',
     'widget/TransportWidget.vala',
     'context/ContextProperties.vala',

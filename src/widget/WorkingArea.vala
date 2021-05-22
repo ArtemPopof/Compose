@@ -10,16 +10,16 @@ public class WorkingArea : DrawingArea {
     
     public TransportPointer pointer {get; set;}
     
-    private Track[] tracks;
+    public Track[] tracks {get; set;}
     
-    public WorkingArea () {
+    public WorkingArea (Controller controller) {
         add_events (Gdk.EventMask.POINTER_MOTION_MASK);
         
         pointer = new TransportPointer ();
         
         tracks = new Track[10];
         for (int i = 0; i < tracks.length; i++) {
-            tracks[i] = new Track();
+            tracks[i] = new Track (controller);
         }
     }
 

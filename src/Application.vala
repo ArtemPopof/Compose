@@ -45,11 +45,12 @@ public class Application : Gtk.Application {
             Process.exit (1);
         }
         
-        working_area = new WorkingArea ();
-        
-        controller = new Controller (backend, working_area);
+        controller = new Controller (backend);
         controller.init ();
         
+        working_area = new WorkingArea (controller);
+        
+        controller.working_area = working_area;
         
         var main_window = create_main_window ();
        
@@ -57,7 +58,8 @@ public class Application : Gtk.Application {
             orientation = Gtk.Orientation.HORIZONTAL   
         };
         
-        content_container.add (create_controls_panel ());
+        
+        content_container.add (create_controls_panel (working_area.tracks));
         content_container.add (create_working_area());
         
         main_window.add (content_container);
@@ -98,46 +100,24 @@ public class Application : Gtk.Application {
         return header_bar;
     }
     
-    private Gtk.Grid create_controls_panel () {
+    private Track[] create_tracks (int count) {
+        var tracks = new Track[count];
+        
+        return tracks;
+    }
+    
+    private Gtk.Grid create_controls_panel (Track[] tracks) {
         var container = new Gtk.Grid () {
             orientation = Gtk.Orientation.VERTICAL
         };
         
-        container.add (create_track_controls ());
-        container.add (create_track_controls ());
-        container.add (create_track_controls ());
+        var visible_tracks = 3;
+        
+        for (int i = 0; i < visible_tracks; i++) {
+            container.add (tracks[i].controls_widget);
+        }
         
         return container;
-    }
-    
-    private Gtk.Box create_track_controls () {
-        var container = new Gtk.Box (HORIZONTAL, 5);
-        
-        container.add (create_record_button ());
-        container.add (new Gtk.Button.with_label (_("Play")));
-        container.add (create_stop_button ());
-
-        container.vexpand = true;
-        
-        return container;
-    }
-    
-    private Gtk.Button create_record_button () {
-        Gtk.Button button = new Gtk.Button.with_label (_("Record"));
-        button.clicked.connect (() => {
-            controller.record ();
-        });
-        
-        return button;
-    }
-    
-    private Gtk.Button create_stop_button () {
-        Gtk.Button button = new Gtk.Button.with_label (_("Stop"));
-        button.clicked.connect (() => {
-            controller.stop ();
-        });
-        
-        return button;
     }
     
     private Gtk.Box create_working_area () {
@@ -151,23 +131,6 @@ public class Application : Gtk.Application {
         container.vexpand = true;
         container.hexpand = true;
                 
-        return container;
-    }
-    
-    private Gtk.Box create_track_body () {
-        var container = new Gtk.Box (VERTICAL, 5);
-        
-        var label = new Gtk.Label (_("start recording"));
-        label.justify = Gtk.Justification.CENTER;
-        label.get_style_context ().add_class (Granite.STYLE_CLASS_H1_LABEL);
-        
-        container.valign = Gtk.Align.CENTER;
-
-        container.add (label);
-        
-        container.hexpand = true;
-        container.vexpand = true;
-
         return container;
     }
     

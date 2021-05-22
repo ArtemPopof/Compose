@@ -4,7 +4,7 @@ public class Controller : GLib.Object, Transport {
     
     private const int UPS = 30;
     
-    private WorkingArea working_area;
+    public WorkingArea working_area {get; set;}
     private double play_time;
     private ulong update_period;
     
@@ -12,9 +12,9 @@ public class Controller : GLib.Object, Transport {
 
     public Transport.State state {get; set;}
 
-    public Controller (AudioInterface backend, WorkingArea working_area) {
+    public Controller (AudioInterface backend) {
         this.backend = backend;
-        this.working_area = working_area;
+
         state = Transport.State.IDLE;
         initialized = false;
         
