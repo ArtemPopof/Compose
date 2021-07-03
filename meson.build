@@ -34,6 +34,8 @@ dependencies = [
     dependency('libpulse-mainloop-glib'),
     dependency('sndfile'),
     dependency('jack'),
+    dependency('gl'),
+    dependency('glew'),
     math_dep
 
 ]

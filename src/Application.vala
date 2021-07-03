@@ -20,30 +20,46 @@
 */
 public class Application : Gtk.Application {
 
-    private AudioInterface backend;
+    private Controller controller;
+    private AudioContext context;
+    private WorkingArea working_area;
 
-    Application (AudioInterface backend) {
+    Application () {
         Object (
             application_id: "com.github.abbysoft-team.compose",
             flags: ApplicationFlags.FLAGS_NONE
         );
-        
-        this.backend = backend;
     }
     
     ~Application () {
-        backend.close();
+
     }
 
   
     protected override void activate () {
+        // initialize backend
+        var context = new AudioContext ();
+        var backend = context.get_audio_interface ();
+        if (backend.init () != 0) {
+            stderr.printf ("failed to initialize backend\n");
+            Process.exit (1);
+        }
+        
+        controller = new Controller (backend);
+        controller.init ();
+        
+        working_area = new WorkingArea (controller);
+        
+        controller.working_area = working_area;
+        
         var main_window = create_main_window ();
        
         var content_container = new Gtk.Grid () {
             orientation = Gtk.Orientation.HORIZONTAL   
         };
         
-        content_container.add (create_controls_panel ());
+        
+        content_container.add (create_controls_panel (working_area.tracks));
         content_container.add (create_working_area());
         
         main_window.add (content_container);
@@ -51,80 +67,70 @@ public class Application : Gtk.Application {
         main_window.show_all ();
     }
     
-    private Gtk.Window create_main_window () {
+    private Gtk.ApplicationWindow create_main_window () {
         var main_window = new Gtk.ApplicationWindow (this);
         main_window.title = _("Compose");
 
         main_window.default_width = 1111;
         main_window.default_height = 777;
+        
+        main_window.set_titlebar (create_title_bar ());
 
         
-        //Granite.Widgets.Utils.set_color_primary (main_window, {222, 22, 0, 256});
+        //Granite.Widgets.Utils.set_color_primary (main_window, {0.8, 0.8, 0.8, 1});
         
         return main_window;
     }
     
-    private Gtk.Grid create_controls_panel () {
+    private Gtk.HeaderBar create_title_bar () {
+        var header_bar = new Gtk.HeaderBar ();
+        
+        header_bar.set_show_close_button (true);
+        header_bar.title = _("Untitled");
+        header_bar.has_subtitle = false;
+        
+        var transport_controls = new TransportWidget (controller);
+        
+        header_bar.pack_start (new Gtk.Button.with_label (_("New")));
+        header_bar.pack_start (new Gtk.Button.with_label (_("Open")));
+        header_bar.pack_start (new Gtk.Button.with_label (_("Save")));
+        header_bar.pack_start (new Gtk.Label (_("                              ")));
+        header_bar.pack_start (transport_controls);
+        
+        return header_bar;
+    }
+    
+    private Track[] create_tracks (int count) {
+        var tracks = new Track[count];
+        
+        return tracks;
+    }
+    
+    private Gtk.Grid create_controls_panel (Track[] tracks) {
         var container = new Gtk.Grid () {
             orientation = Gtk.Orientation.VERTICAL
         };
         
-        container.add (create_track_controls ());
-        container.add (create_track_controls ());
-        container.add (create_track_controls ());
+        var visible_tracks = 3;
+        
+        for (int i = 0; i < visible_tracks; i++) {
+            container.add (tracks[i].controls_widget);
+        }
         
         return container;
-    }
-    
-    private Gtk.Box create_track_controls () {
-        var container = new Gtk.Box (HORIZONTAL, 5);
-        
-        container.add (create_record_button ());
-        container.add (new Gtk.Button.with_label (_("Play")));
-        container.add (new Gtk.Button.with_label (_("Stop")));
-        
-        container.vexpand = true;
-        
-        return container;
-    }
-    
-    private Gtk.Button create_record_button () {
-        Gtk.Button button = new Gtk.Button.with_label (_("Record"));
-        button.clicked.connect (() => {
-            backend.record ();
-            print ("recording... \n");
-        });
-        
-        return button;
     }
     
     private Gtk.Box create_working_area () {
         var container = new Gtk.Box (VERTICAL, 5);
         
-        container.add (create_track_body ());
-        container.add (create_track_body ());
-        container.add (create_track_body ());
+        working_area.hexpand = true;
+        working_area.vexpand = true;
+        
+        container.add (working_area);
         
         container.vexpand = true;
         container.hexpand = true;
                 
-        return container;
-    }
-    
-    private Gtk.Box create_track_body () {
-        var container = new Gtk.Box (VERTICAL, 5);
-        
-        var label = new Gtk.Label (_("start recording"));
-        label.justify = Gtk.Justification.CENTER;
-        label.get_style_context ().add_class (Granite.STYLE_CLASS_H1_LABEL);
-        
-        container.valign = Gtk.Align.CENTER;
-
-        container.add (label);
-        
-        container.hexpand = true;
-        container.vexpand = true;
-
         return container;
     }
     
@@ -133,14 +139,8 @@ public class Application : Gtk.Application {
             stderr.printf ("Cannot run without thread support.\n");
             return 1;
         }
-    
-        var backend = new JackAudioInterfaceImpl ();
-        if (backend.init () != 0) {
-            stderr.printf ("failed to initialize backend\n");
-            return 1;
-        }
         
-        var app = new Application (backend);
+        var app = new Application ();
         
         return app.run (args);
     }

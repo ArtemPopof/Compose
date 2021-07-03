@@ -29,9 +29,19 @@ i18n.merge_file(
 )
 
 install_data (
+    join_paths('icons', 'play.png'),
+    install_dir: join_paths('share', 'abbysoft-team', 'compose', 'icons')
+)
+install_data (
+    join_paths('icons', 'stop.png'),
+    install_dir: join_paths('share', 'abbysoft-team', 'compose', 'icons')
+)
+install_data (
+    join_paths('icons', 'record.png'),
+    install_dir: join_paths('share', 'abbysoft-team', 'compose', 'icons')
 )
 
 install_data (
     join_paths('css', 'main.css'),
-    install_dir: join_paths('share', 'abbysoft-team', 'temperature', 'css')
+    install_dir: join_paths('share', 'abbysoft-team', 'compose', 'css')
 )

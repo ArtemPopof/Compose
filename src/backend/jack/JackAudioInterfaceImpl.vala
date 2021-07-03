@@ -12,8 +12,16 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
     private double m_freq = 200;
     private ulong m_time = 0;
     
-    public float[] buffer = new float[1024 * 1024];
+    public float[] buffer = new float[20 * 1024 * 1024];
     private ulong last_buffer_pos;
+    
+    private bool recording;
+    
+    private uint sample_rate;
+    
+    private AudioData last_audio_data;
+    
+    private Transport transport;
     
     private void shutdown () {
     }
@@ -24,37 +32,64 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
         
         float *input = (float *) input_port.get_buffer (nframes);
         
+        if (!recording) {
+            for (int i = 0; i < nframes; i++) {
+                out1[i] = 0;
+                out2[i] = 0;
+            }
+            
+            return 0;
+        }
+        
+        if (last_buffer_pos >= buffer.length - 100) {
+            print ("Buffer full\n");
+            stop_record ();
+            return 0;
+        }
+        
+        var sum = 0.0;
+        var sample_previews = new float[nframes / AudioContext.SAMPLES_PER_PREVIEW];
+        var preview_index = 0;
+        
         //SUPER LOUD SINE
-        // float val;
+        float val;
+        for (int i = 0; i < nframes; i++) {
+            val = (float) (m_amp * GLib.Math.sin (m_freq * m_time * twopi_over_sr));
+            
+            out1[last_buffer_pos + i] = val;
+            out2[last_buffer_pos + i] = val;
+            
+            this.m_time++;
+            sum += val;
+            
+            if (i % AudioContext.SAMPLES_PER_PREVIEW == 0) {
+                //print ("Samples per preview: %d\n", AudioContext.SAMPLES_PER_PREVIEW);
+                sample_previews[preview_index] = (float) (sum / AudioContext.SAMPLES_PER_PREVIEW);
+                //print ("preview: %f\n", sample_previews[preview_index]);
+                preview_index++;
+                sum = 0;
+            }
+        }
+        
+        
+        // // monitor input
         // for (int i = 0; i < nframes; i++) {
-        //     if (last_buffer_pos >= buffer.length - 10000) {
-        //         print ("Buffer full, recording complete\n");
-        //         new SndFileExporter ().export_wav ((float *) buffer, last_buffer_pos * sizeof (float), "test.wav");
-        //         last_buffer_pos = 0;
-        //         return 0;
-        //     }
-        //     val = (float) (m_amp * GLib.Math.sin (m_freq * m_time * twopi_over_sr));
+        //     buffer[last_buffer_pos + i] = input[i];
         //     
-        //     buffer[last_buffer_pos + i] = val;
-        //     
-        //     this.m_time++;
+        //     sum += input[i];
         // }
         
-        // monitor input
-        for (int i = 0; i < nframes; i++) {
-            if (last_buffer_pos >= buffer.length - 100) {
-                print ("Buffer full, recording complete\n");
-                new SndFileExporter ().export_wav ((float *) buffer, last_buffer_pos * sizeof (float), "test.wav");
-                last_buffer_pos = 0;
-                return 0;
-            }
-            buffer[last_buffer_pos + i] = input[i];
-        }
+        var avg_level = sum / nframes;
         
         last_buffer_pos += nframes;
         
-        print ("Buffer position: %u\n", (uint) last_buffer_pos);
+        //print ("Buffer position: %u\n", (uint) last_buffer_pos);
         
+        if (transport != null) {
+            transport.move_transport (nframes);
+            transport.samples_preview (AudioContext.SAMPLES_PER_PREVIEW, sample_previews);
+        }
+
         return 0;
     }
     
@@ -152,7 +187,7 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
         
         print ("Input port connected\n");
         
-        NFrames sample_rate = client.get_sample_rate ();
+        sample_rate = (uint) client.get_sample_rate ();
         twopi_over_sr = (2.0 * Math.PI) / (double) sample_rate;
         
         print ("Jack initializing complete, sample rate: %u\n", sample_rate);
@@ -169,18 +204,39 @@ public class JackAudioInterfaceImpl : GLib.Object, AudioInterface {
     }
     
     public void stop (AudioData clip) {
-        
+        recording = false;
     }
     
     public void record () {
-        
+        print ("Start recording...\n");
+        recording = true;
+        last_buffer_pos = 0;
     }
     
     public AudioData stop_record () {
-        return null;
+        recording = false;
+        
+        print ("Stop recording and save clip\n");
+        
+        float *audio_data_buffer = try_malloc (sizeof (float) * last_buffer_pos);
+        Memory.copy (audio_data_buffer, buffer, sizeof (float) * last_buffer_pos);
+        
+        last_audio_data = new AudioData (buffer, (size_t) last_buffer_pos);
+        
+        new SndFileExporter ().export_audio_wav (last_audio_data, "test_clip.wav");
+        
+        return last_audio_data;
     }
     
     public void close () {
         
+    }
+    
+    public uint get_sample_rate () {
+        return sample_rate;
+    }
+    
+    public void set_transport (Transport transport) {
+        this.transport = transport;
     }
 }

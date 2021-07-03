@@ -1,10 +1,23 @@
 sources = files(
     'Application.vala',
     'model/AudioData.vala',
+    'model/Color.vala',
     'backend/AudioInterface.vala',
     'backend/alsa/AlsaAudioInterfaceImpl.vala',
     'backend/pulse/PulseAudioInterfaceImpl.vala',
     'backend/jack/JackAudioInterfaceImpl.vala',
     'Exporter.vala',
-    'SndFileExporter.vala'
+    'SndFileExporter.vala',
+    'widget/WorkingArea.vala',
+    'widget/WorkingAreaGL.vala',
+    'widget/DrawableObject.vala',
+    'widget/TrackControls.vala',
+    'widget/TransportPointer.vala',
+    'widget/TransportWidget.vala',
+    'context/ContextProperties.vala',
+    'context/AudioContext.vala',
+    'controller/Controller.vala',
+    'controller/Transport.vala',
+    'widget/Track.vala',
+    'util/Utility.vala'
 )
